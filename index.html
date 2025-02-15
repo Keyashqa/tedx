@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rebus Puzzle Game</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #111;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .timer-container {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #e62b1e;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .timer-btn {
+            background: black;
+            color: white;
+            border: 1px solid white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #e62b1e;
+            margin-top: 100px;
+        }
+        .round-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: auto;
+        }
+        .round {
+            background: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.5);
+        }
+        button {
+            width: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            margin: 5px;
+        }
+        .easy { background-color: #e62b1e; }
+        .moderate { background-color: #ff9800; }
+        .hard { background-color: #b71c1c; }
+        .answer-btn { background-color: #444; }
+        .question-img {
+            display: none;
+            max-width: 400px;
+            height: auto;
+            margin: 10px 0;
+            border: 3px solid #e62b1e;
+        }
+        .answer-text {
+            display: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e62b1e;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer-container" class="timer-container">
+        ⏳ Time: <span id="timer">15</span> sec
+    </div>
+    <h1>Rebus Puzzle Game - 6 Rounds</h1>
+    <div class="round-container"></div>
+    
+    <script>
+        const rounds = 1;
+        const questions = {
+            easy: [
+            { img: "img/easy1.png", answer: "Highschool" },
+                { img: "img/easy2.png", answer: "Breakfast" },
+                { img: "img/easy3.png", answer: "Eifel tower" },
+                { img: "img/easy4.png", answer: "Happy Hour" },
+                { img: "img/easy5.png", answer: "Cross Roads" },
+                { img: "img/easy6.png", answer: "Cucumber Slice" },
+                { img: "img/easy7.png", answer: "For a Change" },
+                { img: "img/easy8.png", answer: "No one understands" },
+                { img: "img/easy9.png", answer: "Broken Promise" },
+                { img: "img/easy10.png", answer: "Metaphor" },
+                { img: "img/easy11.png", answer: "Misunderstood" }
+                
+            ],
+            moderate: [
+                { img: "img/moderate1.png", answer: "Scrambled eggs" },
+                { img: "img/moderate2.png", answer: "Try to understand" },
+                { img: "img/moderate3.png", answer: "For instance" },
+                { img: "img/moderate4.png", answer: "Summer" },
+                { img: "img/moderate5.png", answer: "One in million" },
+                { img: "img/moderate6.png", answer: "Standup Comedy" },
+                { img: "img/moderate7.png", answer: "Be inspired" },
+                { img: "img/moderate8.png", answer: "Once in my life" },
+                { img: "img/moderate9.png", answer: "Your are in Trouble" },
+                { img: "img/moderate10.png", answer: "Win at ease" },
+                { img: "img/moderate11.png", answer: "Inbetween Jobs" }
+            ],
+            hard: [
+                { img: "img/hard1.png", answer: "--" },
+                { img: "img/hard2.png", answer: "Venus" },
+                { img: "img/hard3.png", answer: "Australia" },
+                { img: "img/hard4.png", answer: "----" },
+                { img: "img/hard5.png", answer: "Arabic" },
+                { img: "img/hard6.png", answer: "69" },
+                { img: "img/hard7.png", answer: "Malayalam" },
+                { img: "img/hard8.png", answer: "Heart" },
+                { img: "img/hard9.png", answer: "Mango" },
+                { img: "img/hard10.png", answer: "Date" },
+                { img: "img/hard11.png", answer: "Dictionary" }
+            ]
+        };
+
+        let countdown = 15;
+        let countdownInterval;
+
+        function startCountdown() {
+            clearInterval(countdownInterval);
+            countdown = 15;
+            document.getElementById('timer').textContent = countdown;
+            document.getElementById('timer-container').style.background = 'green';
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('timer').textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('timer-container').style.background = 'red';
+                }
+            }, 1000);
+        }
+
+        const roundContainer = document.querySelector('.round-container');
+        for (let i = 0; i < rounds; i++) {
+            const roundDiv = document.createElement('div');
+            roundDiv.className = 'round';
+            roundDiv.innerHTML = `
+                <h3>Round ${i + 1}</h3>
+                <div>
+                    <button class="easy" onclick="showQuestion('easy', ${i})">Easy</button>
+                    <button class="moderate" onclick="showQuestion('moderate', ${i})">Moderate</button>
+                    <button class="hard" onclick="showQuestion('hard', ${i})">Hard</button>
+                </div>
+                <img id="question-img-${i}" class="question-img" />
+                <button class="answer-btn" onclick="showAnswer(${i})">Show Answer</button>
+                <p id="answer-text-${i}" class="answer-text"></p>
+            `;
+            roundContainer.appendChild(roundDiv);
+        }
+
+        function showQuestion(difficulty, roundIndex) {
+            startCountdown();
+            const questionSet = questions[difficulty];
+            const randomIndex = Math.floor(Math.random() * questionSet.length);
+            const selectedQuestion = questionSet[randomIndex];
+
+            const imgElement = document.getElementById(`question-img-${roundIndex}`);
+            imgElement.src = selectedQuestion.img;
+            imgElement.style.display = "block";
+
+            imgElement.dataset.answer = selectedQuestion.answer;
+            document.getElementById(`answer-text-${roundIndex}`).style.display = "none";
+        }
+
+        function showAnswer(roundIndex) {
+            const imgElement = document.getElementById(`question-img-${roundIndex}`);
+            const answerText = document.getElementById(`answer-text-${roundIndex}`);
+
+            if (imgElement.dataset.answer) {
+                answerText.textContent = `Answer: ${imgElement.dataset.answer}`;
+                answerText.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
